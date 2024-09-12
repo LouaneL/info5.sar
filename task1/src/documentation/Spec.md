@@ -1,13 +1,15 @@
 # **Specification**
 
-    This task aims to create a communication between a server and several clients.
-    A client is created and will be connected to the server.
-    This client will send some bytes to the server and the server will send back the same bytes (the sever is an echo). Then the client will disconnect itself to the server.
+    This task aims to create a communication between a server and tasks, thanks to a channel.
+    a task will send some bytes to the server and the server will send back the same bytes (the sever is like an echo). Then the client will disconnect itself to the server.
 
 <br>
-A client is created thanks to the server.
-The server will create a channel for this client and will send it to the client.
-A channel is used for the communication, we can write and read on it.
 
-The client bytes are stored in a circularBuffer. The bytes in the circularBuffer will be write on the channel. Then the server will read it via the channel and will write it in the channel.<br>
-When the client receive the response it will be disconnected from the server.
+A channel is a link between several entities to comunicate between each others. A channel is created by a broker. A channel will use sockets for the entities to read and write.<br>
+The channels are fifo looseless, fullduplex and a byte flow.<br>
+A channel is for one task only, because there will be some problems with read and write, even if they are synchronized methods.
+
+Each entities have a broker, it has an unique name and a port. A broker can handle multiple tasks
+When a task is created it return the broker associated with.
+
+
