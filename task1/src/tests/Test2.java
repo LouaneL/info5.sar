@@ -11,7 +11,7 @@ public class Test2 {
 		Broker broker = new Broker("broker");
 		EchoServer echoServer = new EchoServer();
 
-		Task task1 = new Task(broker, this);
+		Task task1 = new Task(broker, echoServer);
 		Channel channel1 = task1.getBroker().accept(80);
 		
 		int cb1Capacity = 3;
