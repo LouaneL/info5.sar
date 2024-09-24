@@ -1,4 +1,5 @@
 package impl;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -11,6 +12,7 @@ public class BrokerImpl {
 		this.name = name;
 		this.brokerManager = brokerManager;
 		brokerManager.addBroker(this);
+		RDVs = new HashMap<>();
 	}
 /*
  * Pb si le rdv existe déjà avec le connect de l'autre broker

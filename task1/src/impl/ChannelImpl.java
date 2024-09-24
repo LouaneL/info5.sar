@@ -18,11 +18,22 @@ public class ChannelImpl extends Channel{
 		if (isDisconnected) {
 			return -1;
 		}
-		int lengthToRead = length;
-		while (lengthToRead > 0) {
-			
+		
+		notifyAll();
+		
+		while (in.empty()) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+			}
 		}
-		return 0;
+		
+		int cpt = 0;
+		while (cpt > length && cpt+offset < bytes.length && !in.empty()) {
+			bytes[offset+cpt] = in.pull();
+			cpt++;
+		}
+		return cpt;
 	}
 
 	@Override
@@ -30,7 +41,22 @@ public class ChannelImpl extends Channel{
 		if (isDisconnected) {
 			return -1;
 		}
-		return 0;
+		
+		notifyAll();
+		
+		while (in.full()) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+			}
+		}
+		
+		int cpt = 0;
+		while (cpt > length && cpt+offset < bytes.length && !out.full()) {
+			out.push(bytes[offset+cpt]);
+			cpt++;
+		}
+		return cpt;
 	}
 
 	@Override

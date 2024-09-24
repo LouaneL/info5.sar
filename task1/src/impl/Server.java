@@ -9,7 +9,12 @@ public class Server implements Runnable{
 
 	@Override
 	public void run() {
-		ChannelImpl channel = broker.accept(0);
+		ChannelImpl channel = broker.accept(80);
+		
+		Byte[] msg = new Byte[10];
+		
+		channel.read(msg, 0, 10);
+		channel.write(msg, 0, 10);
 	}
 	
 }

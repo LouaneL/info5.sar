@@ -1,9 +1,14 @@
 package impl;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class BrokerManager {
 	static Map<String,BrokerImpl> brokers;
+	
+	public BrokerManager() {
+		brokers = new HashMap<>();
+	}
 	
 	public BrokerImpl getBroker(String name) {
 		return brokers.get(name);
