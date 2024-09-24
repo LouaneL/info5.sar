@@ -4,15 +4,18 @@ import givenCode.CircularBuffer;
 
 public class RDV {
 	int port = -1;
+	
+	String type;
+	
 	BrokerImpl acceptBroker;
 	BrokerImpl connectBroker;
+	
 	ChannelImpl connectChannel;
 	ChannelImpl acceptChannel;
-	CircularBuffer circularBuffer1;
-	CircularBuffer circularBuffer2;
 
-	public RDV(int port) {
+	public RDV(int port, String type) {
 		this.port = port;
+		this.type = type;
 	}
 
 	public ChannelImpl accept(BrokerImpl broker, int port) {
@@ -55,10 +58,15 @@ public class RDV {
 		return port;
 	}
 	
+	public String getType() {
+		return type;
+	}
+	
 	public void createChannel() {
-		circularBuffer1 = new CircularBuffer(512);
-		circularBuffer2 = new CircularBuffer(512);
+		CircularBuffer circularBuffer1 = new CircularBuffer(512);
+		CircularBuffer circularBuffer2 = new CircularBuffer(512);
 		connectChannel = new ChannelImpl(circularBuffer1, circularBuffer2);
 		acceptChannel = new ChannelImpl(circularBuffer2, circularBuffer1);
 	}
+	
 }

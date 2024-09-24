@@ -16,9 +16,12 @@ public class BrokerImpl {
  * Pb si le rdv existe déjà avec le connect de l'autre broker
  */
 	public ChannelImpl accept(int port) {
-		RDV rdv = getRDV(port);
+		if (getRDV(port, "accept") == null) {
+			throw new IllegalStateException("An accept already exists in this port");
+		}
+		RDV rdv = getRDV(port, "connect");
 		if (rdv == null) {
-			rdv = new RDV(port);
+			rdv = new RDV(port, "accept");
 			addRDV(rdv);
 		}
 		return rdv.accept(this, port);
@@ -26,11 +29,11 @@ public class BrokerImpl {
 	
 	public ChannelImpl connect(String name, int port) {
 		BrokerImpl connectedBroker = brokerManager.getBroker(name);
-		RDV rdv = connectedBroker.getRDV(port);
+		RDV rdv = connectedBroker.getRDV(port,"accept");
 		if (rdv == null) {
-			rdv = new RDV(port);
+			rdv = new RDV(port,"connect");
+			connectedBroker.addRDV(rdv);
 		}
-		addRDV(rdv);
 		return rdv.connect(this, name, port);
 	}
 	
@@ -38,8 +41,12 @@ public class BrokerImpl {
 		return this.name;
 	}
 	
-	public RDV getRDV(int port) {
-		return RDVs.get(port);
+	public RDV getRDV(int port, String type) {
+		RDV rdv = RDVs.get(port);
+		if (rdv != null && rdv.getType() == type) {
+			return rdv;
+		}
+		return null;
 	}
 	
 	public void addRDV(RDV rdv) {
