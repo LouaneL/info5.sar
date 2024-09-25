@@ -18,7 +18,8 @@ public class BrokerImpl {
  * Pb si le rdv existe déjà avec le connect de l'autre broker
  */
 	public ChannelImpl accept(int port) {
-		if (getRDV(port, "accept") == null) {
+		
+		if (getRDV(port, "accept") != null) {
 			throw new IllegalStateException("An accept already exists in this port");
 		}
 		RDV rdv = getRDV(port, "connect");

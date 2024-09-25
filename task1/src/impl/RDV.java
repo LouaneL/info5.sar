@@ -23,7 +23,7 @@ public class RDV {
 
 		if (connectBroker != null) {
 			createChannel();
-			notifyAll();
+			notify();
 		} else {
 			while (connectBroker == null) {
 				try {
@@ -41,7 +41,7 @@ public class RDV {
 
 		if (acceptBroker != null) {
 			createChannel();
-			notifyAll();
+			notify();
 		} else {
 			while (acceptBroker == null) {
 				try {
