@@ -5,7 +5,7 @@
 We need to create two channels to create a communication between two tasks. For example, we have task1 and task2. One channel is used by task1 to read and task2 to write and the other one is used by task2 to read and task1 to write. With this process, we avoid the two tasks to write at the same time and mix their messages.
 The server and client channel need to know each other, so one channel is created with an "in" CircularBuffer and a "out" CircularBuffer. The two channel have the same CircularBuffer at inverse.
 
-If one channel is disconnected t
+A timer detects if a channel has been disconnected.
 <br>
 <br>
 
