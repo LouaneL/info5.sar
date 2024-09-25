@@ -12,7 +12,7 @@ public class BrokerImpl {
 		this.name = name;
 		this.brokerManager = brokerManager;
 		brokerManager.addBroker(this);
-		RDVs = new HashMap<>();
+		RDVs = new HashMap<Integer, RDV>();
 	}
 /*
  * Pb si le rdv existe déjà avec le connect de l'autre broker

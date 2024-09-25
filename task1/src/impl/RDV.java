@@ -18,7 +18,7 @@ public class RDV {
 		this.type = type;
 	}
 
-	public ChannelImpl accept(BrokerImpl broker, int port) {
+	public synchronized ChannelImpl accept(BrokerImpl broker, int port) {
 		this.acceptBroker = broker;
 
 		if (connectBroker != null) {
@@ -36,7 +36,7 @@ public class RDV {
 		return acceptChannel;
 	}
 
-	public ChannelImpl connect(BrokerImpl broker, String name, int port) {
+	public synchronized ChannelImpl connect(BrokerImpl broker, String name, int port) {
 		this.connectBroker = broker;
 
 		if (acceptBroker != null) {

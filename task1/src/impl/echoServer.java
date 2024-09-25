@@ -3,7 +3,7 @@ package impl;
 public class echoServer {
 	
 	public static void main(String[] args) throws InterruptedException {
-		BrokerManager brokerManager = new BrokerManager();
+		BrokerManager brokerManager = BrokerManager.getInstance();
 		
 		BrokerImpl clientBroker = new BrokerImpl("clientBroker", brokerManager);
 		BrokerImpl serverBroker = new BrokerImpl("serverBroker", brokerManager);
