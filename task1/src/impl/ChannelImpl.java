@@ -17,6 +17,8 @@ public class ChannelImpl extends Channel {
 
 	@Override
 	public int read(Byte[] bytes, int offset, int length) {
+		
+		System.out.println("In read");
 		if (disconnected()) {
 			return -1;
 		}
@@ -61,7 +63,9 @@ public class ChannelImpl extends Channel {
 
 	@Override
 	public synchronized int write(Byte[] bytes, int offset, int length) {
-		if (isDisconnected) {
+		
+		System.out.println("In write");
+		if (disconnected()) {
 			return -1;
 		}
 		int cpt = 0;

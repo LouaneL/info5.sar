@@ -5,17 +5,14 @@ import givenCode.CircularBuffer;
 public class RDV {
 	int port = -1;
 	
-	String type;
-	
 	BrokerImpl acceptBroker;
 	BrokerImpl connectBroker;
 	
 	ChannelImpl connectChannel;
 	ChannelImpl acceptChannel;
 
-	public RDV(int port, String type) {
+	public RDV(int port) {
 		this.port = port;
-		this.type = type;
 	}
 
 	public synchronized ChannelImpl accept(BrokerImpl broker, int port) {
@@ -60,10 +57,6 @@ public class RDV {
 
 	public int getPort() {
 		return port;
-	}
-	
-	public String getType() {
-		return type;
 	}
 	
 	public void createChannel() {

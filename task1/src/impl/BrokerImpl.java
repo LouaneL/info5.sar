@@ -6,7 +6,7 @@ import java.util.Map;
 public class BrokerImpl {
 	BrokerManager brokerManager;
 	String name;
-	Map<Integer, RDV> RDVs;
+	HashMap<Integer, RDV> RDVs;
 
 	public BrokerImpl(String name, BrokerManager brokerManager) {
 		this.name = name;
@@ -15,48 +15,55 @@ public class BrokerImpl {
 		RDVs = new HashMap<Integer, RDV>();
 	}
 
-	/*
-	 * Pb si le rdv existe déjà avec le connect de l'autre broker
-	 */
-	public synchronized ChannelImpl accept(int port) {
+
+	public ChannelImpl accept(int port) {
 		RDV rdv = null;
-		if (getRDV(port, "accept") != null) {
-			throw new IllegalStateException("An accept already exists in this port");
-		}
-		rdv = getRDV(port, "connect");
-		if (rdv == null) {
-			System.out.println("Creation of an accept RDV");
-			rdv = new RDV(port, "accept");
+		synchronized (RDVs) {
+			if (getRDV(port) != null) {
+				throw new IllegalStateException("An accept already exists in the port "+port);
+			}
+			rdv = new RDV(port);
 			addRDV(rdv);
-		} else {
-			removeRDV(rdv);
+
+			RDVs.notifyAll();
 		}
 		return rdv.accept(this, port);
 	}
 
-	public synchronized ChannelImpl connect(String name, int port) {
-		BrokerImpl connectedBroker = brokerManager.getBroker(name);
-		RDV rdv = connectedBroker.getRDV(port, "accept");
-		if (rdv == null) {
-			System.out.println("Creation of a connect RDV");
-			rdv = new RDV(port, "connect");
-			connectedBroker.addRDV(rdv);
-		} else {
+	public ChannelImpl _connect(BrokerImpl broker, int port) {
+		RDV rdv = null;
+
+		synchronized (RDVs) {
+			rdv = getRDV(port);
+
+			while (rdv == null) {
+				try {
+					RDVs.wait();
+				} catch (InterruptedException ie) {
+					// Noting to do
+				}
+				rdv = getRDV(port);
+			}
 			removeRDV(rdv);
 		}
-		return rdv.connect(this, name, port);
+		return rdv.connect(broker, name, port);
+	}
+
+	public synchronized ChannelImpl connect(String name, int port) {
+		BrokerImpl acceptBroker = brokerManager.getBroker(name);
+
+		if (acceptBroker == null) {
+			throw new IllegalStateException("The broker " + name + " doesn't exist");
+		}
+		return acceptBroker._connect(this, port);
 	}
 
 	public String getName() {
 		return this.name;
 	}
 
-	public RDV getRDV(int port, String type) {
-		RDV rdv = RDVs.get(port);
-		if (rdv != null && rdv.getType() == type) {
-			return rdv;
-		}
-		return null;
+	public RDV getRDV(int port) {
+		return RDVs.get(port);
 	}
 
 	public void addRDV(RDV rdv) {
