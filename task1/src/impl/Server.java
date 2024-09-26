@@ -15,6 +15,8 @@ public class Server implements Runnable{
 		
 		channel.read(msg, 0, 10);
 		channel.write(msg, 0, 10);
+		
+		channel.disconnect();
 	}
 	
 }

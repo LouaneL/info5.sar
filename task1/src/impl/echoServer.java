@@ -11,10 +11,11 @@ public class echoServer {
 		Client clientRunnable = new Client(clientBroker);
 		Server serverRunnable = new Server(serverBroker);
 		
-		TaskImpl client = new TaskImpl(clientBroker, clientRunnable);
 		TaskImpl server = new TaskImpl(serverBroker, serverRunnable);
+		TaskImpl client = new TaskImpl(clientBroker, clientRunnable);
 		
-		server.join();
 		client.join();
+		server.join();
+		
 	}
 }

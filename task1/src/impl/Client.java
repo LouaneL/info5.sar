@@ -9,7 +9,7 @@ public class Client implements Runnable{
 
 	@Override
 	public void run() {
-		ChannelImpl channel = broker.connect(broker.getName(), 80);
+		ChannelImpl channel = broker.connect("serverBroker", 80);
 		Byte[] msgDebut = new Byte[10];
 		Byte[] msgFin = new Byte[10];
 		
@@ -19,10 +19,20 @@ public class Client implements Runnable{
 		
 		channel.write(msgDebut, 0, 10);
 		channel.read(msgFin, 0, 10);
+		channel.disconnect();
 		
-		if(msgDebut == msgFin) {
+		int i=0;
+		while (i < 10 && msgDebut[i] == msgFin[i]) {
+			i++;
+		}
+		
+		if(i==10) {
 			System.out.println("TEST PASSED");
 		} else {
+			for (int j=0; j<10; j++) {
+				System.out.println("Output: "+msgFin[j].intValue()+", Expected: "+msgDebut[j].intValue());
+			}
+			System.out.println(msgFin);
 			System.out.println("TEST FAILED");
 		}
 	}
