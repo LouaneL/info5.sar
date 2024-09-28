@@ -1,6 +1,6 @@
 package givenCode;
 
-import impl.ChannelImpl;
+import task1.impl.ChannelImpl;
 
 public abstract class Broker {
 	public Broker() {}

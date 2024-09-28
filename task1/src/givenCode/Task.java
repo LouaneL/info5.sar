@@ -1,6 +1,6 @@
 package givenCode;
 
-import impl.BrokerImpl;
+import task1.impl.BrokerImpl;
 
 public abstract class Task extends Thread {
 	public Task() {}
