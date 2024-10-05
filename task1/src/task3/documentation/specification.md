@@ -17,7 +17,7 @@ connect -> aims to connect the QueueBroker with the one in the parameters.
 ### **AcceptListener**
 accepted -> if a QueueBroker connect to this QueueBroker then this method is called.
 
-### **ConnectedListener**
+### **ConnectListener**
 connected -> if the connexion of QueueBroker is accepted then this method is called.
 <br>
 refused -> if the connexion of QueueBroker isn't accepted then this method is called.
@@ -31,10 +31,17 @@ messages.
 setListener -> aims to add a listener to the class.
 
 send -> aims to send a message with channels.
-close -> aims to close the channels, so messages can't be sent anymore.
+close -> aims to close the two channels, so messages can't be sent anymore.
 closed -> to know if the MessageQueue is closed.
 <br>
 <br>
 
-## TaskEvent
-A TaskEvent has one runnable.
+## Event
+An Event has one runnable. It's created by a QueueBroker.
+
+## EventPump
+EventPump has a runnable pump. It has to execute all the runnables. It's a FIFO pump.
+
+post -> post a new event (runnable) to the pump.
+start -> start the execution of the first runnable of the the pump.
+kill -> kill the EventPump.
