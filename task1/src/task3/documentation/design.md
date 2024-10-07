@@ -36,6 +36,8 @@ The connect and accept methods call the methods of the Broker associated.
 ## MessageQueue
 The MessageQueue has a listener to know when the connexion is closed and when it received a message.
 
+A MessageQueue has the listener of the other MessageQueue of the connexion. They are set at the creation of the MessageQueues, in the QueueBrokers.
+
 When the close method is called then it disconnect the used channel.
 
 The send method use the channel and send the entire message.
@@ -50,6 +52,8 @@ In the post method, the react method of the executed Events are called.
 There is a loop, *when the EventPump isn't kill yet*, if the pump is empty, it wait, and if it's not then an Event is started.
 <br>
 When a Event is posted then it have to be started.
+
+The Tasks have to know the pumpEvent 
 <br>
 <br>
 
@@ -57,4 +61,11 @@ When a Event is posted then it have to be started.
 An Event has a runnable.
 
 react -> aims to run its runnable
+
+An Event is put in the pump by its Task.
+<br>
+<br>
+
+## Task
+A Task has to know the pumpEvent to create an event with its runnable and put it in the pumpEvent.
 
