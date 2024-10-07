@@ -1,17 +1,20 @@
 package task3.givenCode;
 
+import task3.impl.MessageQueueEventImpl;
+
 public abstract class QueueBrokerEvent {
+	public QueueBrokerEvent() {}
 	public QueueBrokerEvent(String name) {}
 	
-	interface AcceptListener {
-		void accepted(MessageQueueEvent queue);
+	public interface AcceptListener {
+		void accepted(MessageQueueEventImpl messageQueueEvent);
 	}
-	abstract boolean bind(int port, AcceptListener listener);
-	abstract boolean unbind(int port);
+	public abstract boolean bind(int port, AcceptListener listener);
+	public abstract boolean unbind(int port);
 	
-	interface ConnectListener {
-		void connected(MessageQueueEvent queue);
+	public interface ConnectListener {
+		void connected(MessageQueueEventImpl messageQueueEvent);
 		void refused();
 	}
-	abstract boolean connect(String name, int port, ConnectListener listener);
+	public abstract boolean connect(String name, int port, ConnectListener listener);
 }

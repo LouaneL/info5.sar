@@ -1,15 +1,15 @@
 package task3.givenCode;
 
 public abstract class MessageQueueEvent {
-	interface Listener {
-		void received(byte[] msg);
+	public interface Listener {
+		void received(Byte[] msg);
 		void closed();
 	}
-	abstract void setListener(Listener l);
+	public abstract void setListener(Listener l);
 	
-	abstract boolean send(byte[] bytes);
-	abstract boolean send(byte[] bytes, int offset, int length);
+	public abstract boolean send(Byte[] bytes);
+	public abstract boolean send(Byte[] bytes, int offset, int length);
 	
-	abstract void close();
-	abstract boolean closed();
+	public abstract void close();
+	public abstract boolean closed();
 }
