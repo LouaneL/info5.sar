@@ -20,6 +20,7 @@ public class TaskQueueImpl extends TaskQueue{
 	public TaskQueueImpl(QueueBrokerImpl queueBroker, Runnable runnable) {
 		this.queueBroker = queueBroker;
 		this.runnable = runnable;
+		this.start();
 	}
 
 	@Override

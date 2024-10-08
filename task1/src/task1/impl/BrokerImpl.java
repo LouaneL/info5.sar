@@ -15,7 +15,6 @@ public class BrokerImpl {
 		RDVs = new HashMap<Integer, RDV>();
 	}
 
-
 	public ChannelImpl accept(int port) {
 		RDV rdv = null;
 		synchronized (RDVs) {

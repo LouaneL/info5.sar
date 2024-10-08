@@ -13,19 +13,29 @@ public class QueueBrokerImpl extends QueueBroker{
 		this.name = name;
 		this.queueBrokerManager = queueBrokerManager;
 		this.broker = broker;
+		queueBrokerManager.addBroker(this);
 	}
 	
 	public String getName() {
 		return name;
 	}
 	
-	public MessageQueueImpl accept(int port) {
+	public BrokerImpl getBroker() {
+		return broker;
+	}
+	
+	public synchronized MessageQueueImpl accept(int port) {
 		ChannelImpl channel = broker.accept(port);
 		return new MessageQueueImpl(channel);
 	}
 	
-	public MessageQueueImpl connect(String name, int port) {
-		ChannelImpl channel = broker.connect(name, port);
+	public synchronized MessageQueueImpl connect(String name, int port) {
+		QueueBrokerImpl queueBroker = queueBrokerManager.getBroker(name);
+		if (queueBroker == null) {
+			throw new IllegalStateException("QueueBroker: "+name+" doesn't exist");
+		}
+		
+		ChannelImpl channel = broker.connect(queueBroker.getBroker().getName(), port);
 		return new MessageQueueImpl(channel);
 	}
 	

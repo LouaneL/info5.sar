@@ -18,8 +18,8 @@ public class echoServerQueue {
 		QueueBrokerImpl clientQueueBroker = new QueueBrokerImpl("clientQueueBroker", queueBrokerManager, clientBroker);
 		QueueBrokerImpl serverQueueBroker = new QueueBrokerImpl("serverQueueBroker", queueBrokerManager, serverBroker);
 		
-		ClientQueue clientRunnable = new ClientQueue(clientBroker);
-		ServerQueue serverRunnable = new ServerQueue(serverBroker);
+		ClientQueue clientRunnable = new ClientQueue(clientQueueBroker);
+		ServerQueue serverRunnable = new ServerQueue(serverQueueBroker);
 		
 		TaskQueueImpl server = new TaskQueueImpl(serverQueueBroker, serverRunnable);
 		TaskQueueImpl client = new TaskQueueImpl(clientQueueBroker, clientRunnable);

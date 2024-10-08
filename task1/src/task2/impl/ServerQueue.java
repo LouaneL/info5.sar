@@ -16,6 +16,11 @@ public class ServerQueue implements Runnable{
 
 	@Override
 	public void run() {
-				
+		MessageQueueImpl messageQueue = queueBroker.accept(80);
+		
+		Byte[] msg = messageQueue.received();
+		messageQueue.send(msg, 0, msg.length);
+		
+		messageQueue.close();
 	}
 }

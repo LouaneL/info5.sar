@@ -17,11 +17,14 @@ public class ChannelImpl extends Channel {
 
 	@Override
 	public int read(Byte[] bytes, int offset, int length) {
-		
-		System.out.println("In read");
 		if (disconnected()) {
-			return -1;
+			try {
+				throw new DisconnectedException();
+			} catch (DisconnectedException de){
+				System.out.println("Disconnected");
+			}
 		}
+
 		int cpt = 0;
 		try {
 			
@@ -63,10 +66,13 @@ public class ChannelImpl extends Channel {
 
 	@Override
 	public synchronized int write(Byte[] bytes, int offset, int length) {
-		
-		System.out.println("In write");
+
 		if (disconnected()) {
-			return -1;
+			try {
+				throw new DisconnectedException();
+			} catch (DisconnectedException de) {
+				System.out.println("Disconnected");
+			}
 		}
 		int cpt = 0;
 		
