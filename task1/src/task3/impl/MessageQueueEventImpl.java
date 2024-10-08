@@ -7,9 +7,11 @@ public class MessageQueueEventImpl extends MessageQueueEvent{
 	ChannelImpl channel;
 	Listener listener;
 	Boolean isClosed = false;
+	MessageQueueEventImpl messageQueueConnexion;
 	
-	public MessageQueueEventImpl(ChannelImpl channel) {
+	public MessageQueueEventImpl(ChannelImpl channel, MessageQueueEventImpl messageQueueConnexion) {
 		this.channel = channel;
+		this.messageQueueConnexion = messageQueueConnexion;
 	}
 
 	@Override
@@ -19,18 +21,24 @@ public class MessageQueueEventImpl extends MessageQueueEvent{
 
 	public boolean send(Byte[] bytes) {
 		Boolean response = send(bytes, 0, bytes.length);
-		listener.received(bytes);
 		
 		return response;
 	}
 
 	@Override
 	public boolean send(Byte[] bytes, int offset, int length) {
-		int cpt = offset;
-		while (cpt < length) {
-			int bytesSend = channel.write(bytes, cpt, length-cpt);
-			cpt += bytesSend;
+		if (isClosed) {
+			System.out.println("The MessageQueue is closed");
+			return false;
 		}
+		
+		channel.write(bytes, offset, length);
+		
+		Byte[] msgToSend = new Byte[length];
+		System.arraycopy(bytes, offset, msgToSend, 0, length);
+		
+		listener.received(msgToSend);
+		
 		return true;
 	}
 

@@ -46,11 +46,11 @@ public class QueueBrokerEventImpl extends QueueBrokerEvent{
 		ChannelImpl channel = broker.accept(port);
 		QueueBrokerEventImpl acceptQueueBroker = queueBrokerEventManager.getBroker(name);
 		BrokerImpl acceptBroker = acceptQueueBroker.getBroker();
+		
 		if (broker.getRDV(port) != null) {
 			MessageQueueEventImpl messageQueueEvent = new MessageQueueEventImpl(channel);
 			listener.connected(messageQueueEvent);
 		}
-		
 		return false;
 	}
 	
