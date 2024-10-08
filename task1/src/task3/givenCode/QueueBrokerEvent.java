@@ -6,15 +6,15 @@ public abstract class QueueBrokerEvent {
 	public QueueBrokerEvent() {}
 	public QueueBrokerEvent(String name) {}
 	
-	public interface AcceptListener {
+	public interface IAcceptListener {
 		void accepted(MessageQueueEventImpl messageQueueEvent);
 	}
-	public abstract boolean bind(int port, AcceptListener listener);
+	public abstract boolean bind(int port, IAcceptListener listener);
 	public abstract boolean unbind(int port);
 	
-	public interface ConnectListener {
+	public interface IConnectListener {
 		void connected(MessageQueueEventImpl messageQueueEvent);
 		void refused();
 	}
-	public abstract boolean connect(String name, int port, ConnectListener listener);
+	public abstract boolean connect(String name, int port, IConnectListener listener);
 }

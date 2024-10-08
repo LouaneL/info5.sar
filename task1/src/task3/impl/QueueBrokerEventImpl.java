@@ -1,5 +1,7 @@
 package task3.impl;
 
+import java.util.HashMap;
+
 import task1.impl.BrokerImpl;
 import task1.impl.BrokerManager;
 import task1.impl.ChannelImpl;
@@ -9,6 +11,9 @@ public class QueueBrokerEventImpl extends QueueBrokerEvent{
 	BrokerImpl broker;
 	String name;
 	QueueBrokerEventManager queueBrokerEventManager;
+	ChannelImpl channelaccept;
+	private HashMap<Integer, IAcceptListener> accepts;
+	
 
 	public QueueBrokerEventImpl(String name) {
 		this.name = name;
@@ -18,21 +23,19 @@ public class QueueBrokerEventImpl extends QueueBrokerEvent{
 		this.name = name;
 		this.broker = broker;
 		this.queueBrokerEventManager = queueBrokerEventManager;
+		accepts = new HashMap<Integer, IAcceptListener>();
 	}
 
 
 	@Override
-	public boolean bind(int port, AcceptListener listener) {
-		ChannelImpl channel = broker.accept(port);
-		if (broker.getRDV(port) != null) {
-			MessageQueueEventImpl messageQueueEvent = new MessageQueueEventImpl(channel);
-			listener.accepted(messageQueueEvent);
-			return true;
+	public boolean bind(int port, IAcceptListener listener) {
+		channelaccept = broker.accept(port);
+		if (getAccept(port) != null) {
+			return false;
 		} else {
-			
+			accepts.put(port, listener);
+			return true;
 		}
-		
-		return false;
 	}
 
 	@Override
@@ -42,16 +45,25 @@ public class QueueBrokerEventImpl extends QueueBrokerEvent{
 	}
 
 	@Override
-	public boolean connect(String name, int port, ConnectListener listener) {
-		ChannelImpl channel = broker.accept(port);
+	public boolean connect(String name, int port, IConnectListener listener) {
+		ChannelImpl channel = broker.connect(name, port);
 		QueueBrokerEventImpl acceptQueueBroker = queueBrokerEventManager.getBroker(name);
-		BrokerImpl acceptBroker = acceptQueueBroker.getBroker();
+		IAcceptListener acceptListener = acceptQueueBroker.getAccept(port);
 		
-		if (broker.getRDV(port) != null) {
-			MessageQueueEventImpl messageQueueEvent = new MessageQueueEventImpl(channel);
-			listener.connected(messageQueueEvent);
+		if (acceptListener != null) {
+			MessageQueueEventImpl messageQueueEventAccept = new MessageQueueEventImpl(channelaccept);
+			MessageQueueEventImpl messageQueueEventConnect = new MessageQueueEventImpl(channel);
+			
+			messageQueueEventAccept.setMessageQueueConnexion(messageQueueEventConnect);
+			messageQueueEventConnect.setMessageQueueConnexion(messageQueueEventAccept);
+			
+			listener.connected(messageQueueEventConnect);
+			acceptListener.accepted(messageQueueEventAccept);
+			return true;
+		} else {
+			listener.refused();
+			return false;
 		}
-		return false;
 	}
 	
 	public String getName() {
@@ -60,5 +72,9 @@ public class QueueBrokerEventImpl extends QueueBrokerEvent{
 	
 	public BrokerImpl getBroker() {
 		return broker;
+	}
+	
+	public IAcceptListener getAccept(int port) {
+		return accepts.get(port);
 	}
 }

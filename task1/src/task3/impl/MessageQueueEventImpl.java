@@ -1,21 +1,26 @@
 package task3.impl;
 
 import task1.impl.ChannelImpl;
+import task3.givenCode.Message;
 import task3.givenCode.MessageQueueEvent;
+import task3.givenCode.MessageQueueEvent.IListener;
 
 public class MessageQueueEventImpl extends MessageQueueEvent{
 	ChannelImpl channel;
-	Listener listener;
+	IListener listener;
+	IListener listenerConnexion;
 	Boolean isClosed = false;
-	MessageQueueEventImpl messageQueueConnexion;
 	
-	public MessageQueueEventImpl(ChannelImpl channel, MessageQueueEventImpl messageQueueConnexion) {
+	public MessageQueueEventImpl(ChannelImpl channel) {
 		this.channel = channel;
-		this.messageQueueConnexion = messageQueueConnexion;
 	}
-
+	
+	public void setMessageQueueConnexion(MessageQueueEventImpl messageQueueConnexion) {
+		listenerConnexion = messageQueueConnexion.listener;
+	}
+	
 	@Override
-	public void setListener(Listener listener) {
+	public void setListener(IListener listener) {
 		this.listener = listener;
 	}
 
@@ -32,13 +37,36 @@ public class MessageQueueEventImpl extends MessageQueueEvent{
 			return false;
 		}
 		
-		channel.write(bytes, offset, length);
+		Byte[] lengthToSend = intToBytes(length);
+		channel.write(lengthToSend, 0, lengthToSend.length);
+		
+		int cpt = offset;
+		while(cpt < length) {
+			cpt += channel.write(bytes, cpt, length-cpt);
+		}
 		
 		Byte[] msgToSend = new Byte[length];
 		System.arraycopy(bytes, offset, msgToSend, 0, length);
 		
-		listener.received(msgToSend);
+		listenerConnexion.received(msgToSend);
 		
+		return true;
+	}
+	
+	public boolean receive() {
+		Byte[] lengthToRead = new Byte[4];
+		channel.read(lengthToRead, 0, 4);
+		int length = bytesToInt(lengthToRead);
+		
+		Byte[] msgReceived = new Byte[length];
+		int cpt = 0;
+		while(cpt < length) {
+			cpt += channel.read(msgReceived, cpt, length-cpt);
+		}
+		
+		Message msg = new Message(msgReceived, 0, length);
+		
+		listenerConnexion.sent(msg);
 		return true;
 	}
 
@@ -46,6 +74,7 @@ public class MessageQueueEventImpl extends MessageQueueEvent{
 	public void close() {
 		channel.disconnect();
 		isClosed = true;
+		listenerConnexion.closed();
 	}
 
 	@Override
@@ -53,4 +82,11 @@ public class MessageQueueEventImpl extends MessageQueueEvent{
 		return isClosed;
 	}
 
+	private Byte[] intToBytes(int value) {
+        return new Byte[] { (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value };
+    }
+
+    private int bytesToInt(Byte[] bytes) {
+        return ((bytes[0] & 0xFF) << 24) | ((bytes[1] & 0xFF) << 16) | ((bytes[2] & 0xFF) << 8) | (bytes[3] & 0xFF);
+    }
 }

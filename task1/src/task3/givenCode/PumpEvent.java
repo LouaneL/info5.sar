@@ -1,7 +1,7 @@
 package task3.givenCode;
 
 public abstract class PumpEvent extends Thread {
-	public abstract void post(IEvent e);
+	public abstract void post(Runnable runnable);
 
 	public abstract void start();
 
