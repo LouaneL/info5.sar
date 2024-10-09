@@ -45,6 +45,8 @@ The send method use the channel and send the entire message.
 <br>
 
 ## PumpEvent
+PumpEvent is a singleton.
+
 The PumpEvent executes all the Event in its pump. Several Event can be executed at the same time.
 
 In the post method, the react method of the executed Events are called.
@@ -62,10 +64,12 @@ An Event has a runnable.
 
 react -> aims to run its runnable
 
-An Event is put in the pump by its Task.
+An Event is put in the pump by its Task. Each Event has a specification, bindEvent for example.
 <br>
 <br>
 
 ## Task
 A Task has to know the pumpEvent to create an event with its runnable and put it in the pumpEvent.
+
+A Task create several Event for each step of its execution.
 
