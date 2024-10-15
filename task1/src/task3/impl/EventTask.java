@@ -4,7 +4,7 @@ import task3.givenCode.IEvent;
 
 public class EventTask implements IEvent {
 	Runnable runnable;
-	boolean isKilled;
+	boolean isKilled = false;
 	private static EventTask task;
 
 	public EventTask() {}
@@ -23,7 +23,7 @@ public class EventTask implements IEvent {
     }
 
     public synchronized void postTask() {
-        if (isKilled) {
+        if (!isKilled) {
         	PumpEventImpl.getInstance().post(this);
         } else {
             throw new IllegalStateException("Task is dead");

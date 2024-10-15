@@ -11,43 +11,45 @@ public class PumpEventImpl extends PumpEvent {
 	static private PumpEventImpl instance;
 	LinkedList<EventTask> runnables;
 	Boolean isKilled = false;
-	
+
 	private PumpEventImpl() {
 		runnables = new LinkedList<EventTask>();
 	}
 
-	public static PumpEventImpl getInstance( ) {
+	public static PumpEventImpl getInstance() {
 		if (instance == null) {
 			instance = new PumpEventImpl();
 		}
 		return instance;
 	}
-	
+
 	@Override
 	public synchronized void post(EventTask event) {
-		runnables.add(event);
+		runnables.addLast(event);
 		notify();
 	}
 
 	@Override
 	public synchronized void start() {
 		while (!isKilled) {
-			System.out.println("In start PumpEvent");
-			while (!runnables.isEmpty()) {
-				EventTask event = runnables.remove();
-				System.out.println("Event react");
-				event.react();	
-			}
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				// Nothing to do
+			if (!runnables.isEmpty()) {
+				EventTask event = runnables.removeFirst();
+				event.react();
+				event.kill();
+			} else {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					// Nothing to do
+				}
 			}
 		}
+
 	}
 
 	@Override
 	public void kill() {
+		Thread.currentThread().interrupt();
 		isKilled = true;
 	}
 

@@ -1,5 +1,6 @@
 package task3.impl;
 
+import java.nio.channels.AcceptPendingException;
 import java.util.HashMap;
 
 import task1.impl.BrokerImpl;
@@ -7,39 +8,51 @@ import task1.impl.BrokerManager;
 import task1.impl.ChannelImpl;
 import task3.givenCode.QueueBrokerEvent;
 
-public class QueueBrokerEventImpl extends QueueBrokerEvent{
+public class QueueBrokerEventImpl extends QueueBrokerEvent {
 	BrokerImpl broker;
 	String name;
 	QueueBrokerEventManager queueBrokerEventManager;
-	ChannelImpl channelaccept;
-	private HashMap<Integer, IAcceptListener> accepts;
-	
+	ChannelImpl channelAccept;
+	private HashMap<Integer, Thread> accepts;
 
 	public QueueBrokerEventImpl(String name) {
 		this.name = name;
 	}
-	
+
 	public QueueBrokerEventImpl(String name, BrokerImpl broker, QueueBrokerEventManager queueBrokerEventManager) {
 		this.name = name;
 		this.broker = broker;
 		this.queueBrokerEventManager = queueBrokerEventManager;
-		accepts = new HashMap<Integer, IAcceptListener>();
+		queueBrokerEventManager.addBroker(this);
+		accepts = new HashMap<Integer, Thread>();
 	}
 
 	@Override
 	public boolean bind(int port, IAcceptListener listener) {
-		channelaccept = broker.accept(port);
-		if (getAccept(port) == null) {
-			accepts.put(port, listener);
-			return true;
+		if (getAccept(port) != null) {
+			System.out.println("Bind on port " + port + " already exist");
+			return false;
 		}
-		return false;
+
+		Thread acceptThread = new Thread() {
+			@Override
+			public void run() {
+				channelAccept = broker.accept(port);
+				MessageQueueEventImpl messageQueue = new MessageQueueEventImpl(channelAccept);
+				AcceptEventTask event = new AcceptEventTask(listener, messageQueue);
+				event.postTask();
+			}
+		};
+		acceptThread.start();
+		accepts.put(port, acceptThread);
+		return true;
 	}
 
 	@Override
 	public boolean unbind(int port) {
 		if (getAccept(port) != null) {
-			accepts.remove(port);
+			Thread acceptThread = accepts.remove(port);
+			acceptThread.interrupt();
 			return true;
 		}
 		return false;
@@ -47,35 +60,37 @@ public class QueueBrokerEventImpl extends QueueBrokerEvent{
 
 	@Override
 	public boolean connect(String name, int port, IConnectListener listener) {
-		ChannelImpl channel = broker.connect(name, port);
-		QueueBrokerEventImpl acceptQueueBroker = queueBrokerEventManager.getBroker(name);
-		IAcceptListener acceptListener = acceptQueueBroker.getAccept(port);
+		Thread connectThread = new Thread() {
+			@Override
+			public void run() {
+				try {
+					QueueBrokerEventImpl queueBrokerAccept = queueBrokerEventManager.getBroker(name);
+					BrokerImpl brokerAccept = queueBrokerAccept.getBroker();
+					ChannelImpl channelConnect = broker.connect(brokerAccept.getName(), port);
+					MessageQueueEventImpl messageQueue = new MessageQueueEventImpl(channelConnect);
+					ConnectEventTask event = new ConnectEventTask(listener, messageQueue);
+					event.postTask();
+				} catch(Exception e) {
+					System.err.println(e.getMessage());
+					listener.refused();
+				}
+			}
+		};
 		
-		if (acceptListener != null) {
-			MessageQueueEventImpl messageQueueEventAccept = new MessageQueueEventImpl(channelaccept);
-			MessageQueueEventImpl messageQueueEventConnect = new MessageQueueEventImpl(channel);
-			
-			messageQueueEventAccept.setMessageQueueConnexion(messageQueueEventConnect);
-			messageQueueEventConnect.setMessageQueueConnexion(messageQueueEventAccept);
-			
-			listener.connected(messageQueueEventConnect);
-			acceptListener.accepted(messageQueueEventAccept);
-			return true;
-		} else {
-			listener.refused();
-			return false;
-		}
+		connectThread.start();
+		
+		return true;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public BrokerImpl getBroker() {
 		return broker;
 	}
-	
-	public IAcceptListener getAccept(int port) {
+
+	public Thread getAccept(int port) {
 		return accepts.get(port);
 	}
 }

@@ -11,7 +11,6 @@ public class CloseEventTask extends EventTask {
 				System.out.println("In CloseEventTask");
 				messageQueue.getChannel().disconnect();
 				messageQueue.isClosed = true;
-				messageQueue.listenerConnexion.closed();
 			}
 		};
 	}
