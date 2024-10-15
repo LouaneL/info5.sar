@@ -26,21 +26,22 @@ public class QueueBrokerEventImpl extends QueueBrokerEvent{
 		accepts = new HashMap<Integer, IAcceptListener>();
 	}
 
-
 	@Override
 	public boolean bind(int port, IAcceptListener listener) {
 		channelaccept = broker.accept(port);
-		if (getAccept(port) != null) {
-			return false;
-		} else {
+		if (getAccept(port) == null) {
 			accepts.put(port, listener);
 			return true;
 		}
+		return false;
 	}
 
 	@Override
 	public boolean unbind(int port) {
-		// TODO Auto-generated method stub
+		if (getAccept(port) != null) {
+			accepts.remove(port);
+			return true;
+		}
 		return false;
 	}
 

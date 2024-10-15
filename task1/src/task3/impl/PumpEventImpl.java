@@ -9,11 +9,11 @@ import task3.givenCode.PumpEvent;
 
 public class PumpEventImpl extends PumpEvent {
 	static private PumpEventImpl instance;
-	LinkedList<Runnable> runnables;
+	LinkedList<EventTask> runnables;
 	Boolean isKilled = false;
 	
 	private PumpEventImpl() {
-		runnables = new LinkedList<Runnable>();
+		runnables = new LinkedList<EventTask>();
 	}
 
 	public static PumpEventImpl getInstance( ) {
@@ -24,17 +24,19 @@ public class PumpEventImpl extends PumpEvent {
 	}
 	
 	@Override
-	public void post(Runnable runnable) {
-		runnables.add(runnable);
+	public synchronized void post(EventTask event) {
+		runnables.add(event);
 		notify();
 	}
 
 	@Override
-	public void start() {
+	public synchronized void start() {
 		while (!isKilled) {
+			System.out.println("In start PumpEvent");
 			while (!runnables.isEmpty()) {
-				Runnable runnable = runnables.remove();
-				runnable.run();
+				EventTask event = runnables.remove();
+				System.out.println("Event react");
+				event.react();	
 			}
 			try {
 				wait();

@@ -1,5 +1,7 @@
 package task3.impl;
 
+import java.net.BindException;
+
 import task1.impl.ChannelImpl;
 import task3.givenCode.Message;
 import task3.givenCode.MessageQueueEvent;
@@ -37,56 +39,39 @@ public class MessageQueueEventImpl extends MessageQueueEvent{
 			return false;
 		}
 		
-		Byte[] lengthToSend = intToBytes(length);
-		channel.write(lengthToSend, 0, lengthToSend.length);
-		
-		int cpt = offset;
-		while(cpt < length) {
-			cpt += channel.write(bytes, cpt, length-cpt);
-		}
-		
-		Byte[] msgToSend = new Byte[length];
-		System.arraycopy(bytes, offset, msgToSend, 0, length);
-		
-		listenerConnexion.received(msgToSend);
+		EventTask event = new SendEventTask(this, bytes, offset, length);
+		event.postTask();
 		
 		return true;
 	}
 	
 	public boolean receive() {
-		Byte[] lengthToRead = new Byte[4];
-		channel.read(lengthToRead, 0, 4);
-		int length = bytesToInt(lengthToRead);
-		
-		Byte[] msgReceived = new Byte[length];
-		int cpt = 0;
-		while(cpt < length) {
-			cpt += channel.read(msgReceived, cpt, length-cpt);
-		}
-		
-		Message msg = new Message(msgReceived, 0, length);
-		
-		listenerConnexion.sent(msg);
+		EventTask event = new ReceiveEventTask(this);
+		event.postTask();
 		return true;
 	}
 
 	@Override
 	public void close() {
-		channel.disconnect();
-		isClosed = true;
-		listenerConnexion.closed();
+		EventTask event = new CloseEventTask(this);
+		event.postTask();
 	}
+		
 
 	@Override
 	public boolean closed() {
 		return isClosed;
 	}
+	
+	public ChannelImpl getChannel() {
+		return channel;
+	}
 
-	private Byte[] intToBytes(int value) {
+	public Byte[] intToBytes(int value) {
         return new Byte[] { (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value };
     }
 
-    private int bytesToInt(Byte[] bytes) {
+    public int bytesToInt(Byte[] bytes) {
         return ((bytes[0] & 0xFF) << 24) | ((bytes[1] & 0xFF) << 16) | ((bytes[2] & 0xFF) << 8) | (bytes[3] & 0xFF);
     }
 }
